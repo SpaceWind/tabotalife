@@ -413,7 +413,7 @@ void CSVFile::load(QString filename)
     QStringList items = data.split("\n");
     if (items.count() == 0)
         return;
-    QString headerLine = items.at(0);
+    QString headerLine = items[0].replace("\r","");
     QStringList header = headerLine.split(",");
     items.removeAt(0);
 
@@ -424,7 +424,7 @@ void CSVFile::load(QString filename)
         QHash<QString,QString> newrow;
         QStringList currentRowItems = line.split(",");
         for (int i = 0; i< header.count(); ++i)
-            newrow[header.at(i)] = currentRowItems[i];
+            newrow[header.at(i).simplified()] = currentRowItems[i].replace("\r","");
         rows.append(newrow);
     }
 }

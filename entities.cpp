@@ -1,6 +1,8 @@
 #include "entities.h"
 #include "math.h"
 
+#define FRAND (double(rand()%RAND_MAX)/double(RAND_MAX))
+
 ViewerDesc::ViewerDesc()
 {
 
@@ -18,8 +20,8 @@ ViewerDesc ViewerDesc::generate(ViewerLibrary *library)
     if (result.age > 60)
         result.age = 60;
 
-    result.alphaLevel = double(qrand()%100000)/100000.;
-    result.casuality = double(qrand()%100000)/100000.;
+    result.alphaLevel = FRAND;
+    result.casuality = FRAND;
    // if (qrand()%100 > 70)
      if (qrand()%100 > 50)
         result.isMale = false;
@@ -82,32 +84,32 @@ StreamerDesc StreamerDesc::generate(ViewerLibrary *library)
     StreamerDesc result(library);
     result.name = getRandomString();
     result.isMale = (rand()%2 == 0);
-    result.pictureQuality = double(qrand()%100000)/100000.;
-    result.webCamQuality = double(qrand()%100000)/100000.;
-    result.skillLevel = double(qrand()%100000)/100000.;
-    result.interactiveness = double(qrand()%100000)/100000.;
-    result.agrLevel = double(qrand()%100000)/100000.;
-    result.attLevel = double(qrand()%100000)/100000.;
-    result.charisma = double(qrand()%100000)/100000.;
+    result.pictureQuality = FRAND;
+    result.webCamQuality = FRAND;
+    result.skillLevel = FRAND;
+    result.interactiveness = FRAND;
+    result.agrLevel = FRAND;
+    result.attLevel = FRAND;
+    result.charisma = FRAND;
     return result;
 }
 
 double StreamerDesc::test(ViewerDesc v) const
 {
     double result = 0.0;
-    result += (1.0 - fabs(agrLevel-v.aggressionInterest))*lib->genderInterestLibrary.getAgressionInterest(agrLevel,v.isMale)*1.25;
-    result += (pictureQuality-0.5)*v.qualityImportance*1.6;
-    result += (webCamQuality-0.5)*v.webcamInterest*attLevel*lib->genderInterestLibrary.getAttractivenessInterest(attLevel,v.isMale)*
-              (1.0 - v.alphaLevel*0.33)*2.0;
-    result += interactiveness*v.interactiveInterest*0.9;
-    result += skillLevel*v.skillInterest*0.8;
-    result += charisma*pow(v.casuality,0.3)*((isMale == v.isMale) ? 1.0 : 1.05)*(v.alphaLevel*0.48 + 1.0);
+    result += (1.0 - fabs(agrLevel-v.aggressionInterest))*lib->genderInterestLibrary.getAgressionInterest(agrLevel,v.isMale)*1.8;
+    result += (pictureQuality-0.5)*v.qualityImportance*1.3;
+    result += (webCamQuality-0.5)*v.webcamInterest*lib->genderInterestLibrary.getAttractivenessInterest(attLevel,v.isMale)*
+              (1.0 - v.alphaLevel*0.33)*1.25;
+    result += interactiveness*v.interactiveInterest*0.7;
+    result += skillLevel*v.skillInterest*0.7;
+    result += charisma*pow(v.casuality,0.5)*((isMale == v.isMale) ? 1.0 : 1.1)*(v.alphaLevel*0.34 + 1.0)*0.9;
     return result;
 }
 
 QString StreamerDesc::getRandomString()
 {
-   const QString possibleCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+   const QString possibleCharacters("abcdefghijklnopqrstuvxyz0123456789");
    const int randomStringLength = 12;
 
    QString randomString;
