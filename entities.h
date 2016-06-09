@@ -3,6 +3,7 @@
 
 #include "library.h"
 
+
 class ViewerDesc
 {
 public:
@@ -30,7 +31,29 @@ public:
     double webcamInterest;
     double interactiveInterest;
     double skillInterest;
+};
 
+class StreamerDesc
+{
+public:
+    StreamerDesc();
+    StreamerDesc(ViewerLibrary * library);
+    static StreamerDesc generate(ViewerLibrary * library);
+    double test(ViewerDesc v) const;
+    static QString getRandomString();
+    QString getDesc();
+
+    QString name;
+    bool isMale;
+    double pictureQuality;
+    double webCamQuality;
+    double skillLevel;
+    double interactiveness;
+    double agrLevel;
+    double attLevel;
+    double charisma;
+private:
+    ViewerLibrary * lib;
 };
 
 #endif // VIEWERDESC_H

@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "viewerdesc.h"
+#include "entities.h"
+#include "singleiterationemulate.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -8,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     library = new ViewerLibrary("");
+    SingleIterationEmulate * form = new SingleIterationEmulate();
+    form->show();
 }
 
 MainWindow::~MainWindow()

@@ -16,11 +16,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    viewerdesc.cpp \
-    library.cpp
+    library.cpp \
+    entities.cpp \
+    singleiterationemulate.cpp
 
 HEADERS  += mainwindow.h \
-    viewerdesc.h \
-    library.h
+    library.h \
+    entities.h \
+    singleiterationemulate.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    singleiterationemulate.ui
