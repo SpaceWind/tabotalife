@@ -91,5 +91,4 @@ void SingleIterationEmulate::on_pushButton_clicked()
                                 " CAS: " + QString::number(casualityMiddle) + " AGE: " + QString::number(ageMiddle));
         streamers.removeAt(foundIndex);
     }
-
 }

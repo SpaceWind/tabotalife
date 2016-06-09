@@ -13,7 +13,7 @@ ViewerDesc ViewerDesc::generate(ViewerLibrary *library)
     for (int i = 1; i<5; i++)
     {
         if ((rand()%int(pow(2,i))) == 0)
-            result.age += qrand()%11;
+            result.age += qrand()%15;
     }
     if (result.age > 60)
         result.age = 60;
