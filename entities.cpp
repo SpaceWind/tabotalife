@@ -96,12 +96,12 @@ double StreamerDesc::test(ViewerDesc v) const
 {
     double result = 0.0;
     result += (1.0 - fabs(agrLevel-v.aggressionInterest))*lib->genderInterestLibrary.getAgressionInterest(agrLevel,v.isMale)*1.25;
-    result += (pictureQuality-0.5)*v.qualityImportance*2.0;
+    result += (pictureQuality-0.5)*v.qualityImportance*1.6;
     result += (webCamQuality-0.5)*v.webcamInterest*attLevel*lib->genderInterestLibrary.getAttractivenessInterest(attLevel,v.isMale)*
-              (1.0 - v.alphaLevel*0.33)*3.3;
-    result += interactiveness*v.interactiveInterest;
-    result += skillLevel*v.skillInterest*0.9;
-    result += charisma*sqrt(v.casuality)*((isMale == v.isMale) ? 1.0 : 1.05)*(v.alphaLevel*0.48 + 1.0);
+              (1.0 - v.alphaLevel*0.33)*2.0;
+    result += interactiveness*v.interactiveInterest*0.9;
+    result += skillLevel*v.skillInterest*0.8;
+    result += charisma*pow(v.casuality,0.3)*((isMale == v.isMale) ? 1.0 : 1.05)*(v.alphaLevel*0.48 + 1.0);
     return result;
 }
 
