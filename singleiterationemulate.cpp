@@ -83,12 +83,12 @@ void SingleIterationEmulate::on_pushButton_clicked()
         alphaMiddle/=maxValue;
         ageMiddle/=maxValue;
         casualityMiddle/=maxValue;
-        double malePercent = maleCount * 100 / (maleCount + femaleCount);
+        double malePercent = double(maleCount) * 100.0 / (maleCount + femaleCount);
 
         StreamerDesc currentStreamer = streamerByName[streamerName];
         ui->listWidget->addItem(streamerName + " [" + QString::number(maxValue) + "]" + currentStreamer.getDesc() + " |||\t" +
-                                "\tMALES: " + QString::number(malePercent) + "% ALPHA: " + QString::number(alphaMiddle) +
-                                " CAS: " + QString::number(casualityMiddle) + " AGE: " + QString::number(ageMiddle));
+                                "\tMALES: " + QString::number(malePercent, 'f',3) + "% ALPHA: " + QString::number(alphaMiddle, 'f',3) +
+                                " CAS: " + QString::number(casualityMiddle, 'f',3) + " AGE: " + QString::number(ageMiddle, 'f',3));
         streamers.removeAt(foundIndex);
     }
 }

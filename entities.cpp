@@ -9,17 +9,17 @@ ViewerDesc::ViewerDesc()
 ViewerDesc ViewerDesc::generate(ViewerLibrary *library)
 {
     ViewerDesc result;
-    result.age = qrand()%12 +10;    //10..19
+    result.age = qrand()%12 +10;    //10..22
     for (int i = 1; i<5; i++)
     {
         if ((rand()%int(pow(2,i))) == 0)
-            result.age += qrand()%15;
+            result.age += qrand()%16;
     }
     if (result.age > 60)
         result.age = 60;
 
-    result.alphaLevel = double(qrand()%1000000)/1000000.;
-    result.casuality = double(qrand()%1000000)/1000000.;
+    result.alphaLevel = double(qrand()%100000)/100000.;
+    result.casuality = double(qrand()%100000)/100000.;
    // if (qrand()%100 > 70)
      if (qrand()%100 > 50)
         result.isMale = false;
@@ -82,13 +82,13 @@ StreamerDesc StreamerDesc::generate(ViewerLibrary *library)
     StreamerDesc result(library);
     result.name = getRandomString();
     result.isMale = (rand()%2 == 0);
-    result.pictureQuality = double(qrand()%1000000)/1000000.;
-    result.webCamQuality = double(qrand()%1000000)/1000000.;
-    result.skillLevel = double(qrand()%1000000)/1000000.;
-    result.interactiveness = double(qrand()%1000000)/1000000.;
-    result.agrLevel = double(qrand()%1000000)/1000000.;
-    result.attLevel = double(qrand()%1000000)/1000000.;
-    result.charisma = double(qrand()%1000000)/1000000.;
+    result.pictureQuality = double(qrand()%100000)/100000.;
+    result.webCamQuality = double(qrand()%100000)/100000.;
+    result.skillLevel = double(qrand()%100000)/100000.;
+    result.interactiveness = double(qrand()%100000)/100000.;
+    result.agrLevel = double(qrand()%100000)/100000.;
+    result.attLevel = double(qrand()%100000)/100000.;
+    result.charisma = double(qrand()%100000)/100000.;
     return result;
 }
 
@@ -96,11 +96,12 @@ double StreamerDesc::test(ViewerDesc v) const
 {
     double result = 0.0;
     result += (1.0 - fabs(agrLevel-v.aggressionInterest))*lib->genderInterestLibrary.getAgressionInterest(agrLevel,v.isMale)*1.25;
-    result += pictureQuality*v.qualityImportance;
-    result += webCamQuality*v.webcamInterest*attLevel*lib->genderInterestLibrary.getAttractivenessInterest(attLevel,v.isMale)*1.6;
+    result += (pictureQuality-0.5)*v.qualityImportance*2.0;
+    result += (webCamQuality-0.5)*v.webcamInterest*attLevel*lib->genderInterestLibrary.getAttractivenessInterest(attLevel,v.isMale)*
+              (1.0 - v.alphaLevel*0.33)*3.3;
     result += interactiveness*v.interactiveInterest;
-    result += skillLevel*v.skillInterest;
-    result += charisma*v.casuality*1.25;
+    result += skillLevel*v.skillInterest*0.9;
+    result += charisma*sqrt(v.casuality)*((isMale == v.isMale) ? 1.0 : 1.05)*(v.alphaLevel*0.48 + 1.0);
     return result;
 }
 
@@ -116,19 +117,19 @@ QString StreamerDesc::getRandomString()
        QChar nextChar = possibleCharacters.at(index);
        randomString.append(nextChar);
    }
-   return randomString;
+   return randomString + "\t";
 }
 
 QString StreamerDesc::getDesc()
 {
     QString result;
     result += isMale? " M " : " F ";
-    result += "\tPIC: " + QString::number(pictureQuality) + " ";
-    result += "\tWEB: " + QString::number(webCamQuality) + " ";
-    result += "\tSKL: " + QString::number(skillLevel) + " ";
-    result += "\tINT: " + QString::number(interactiveness) + " ";
-    result += "\tAGR: " + QString::number(agrLevel) + " ";
-    result += "\tATT: " + QString::number(attLevel) + " ";
-    result += "\tCHA: " + QString::number(charisma) + " ";
+    result += "\tPIC: " + QString::number(pictureQuality, 'f',3) + " ";
+    result += "\tWEB: " + QString::number(webCamQuality, 'f',3) + " ";
+    result += "\tSKL: " + QString::number(skillLevel, 'f',3) + " ";
+    result += "\tINT: " + QString::number(interactiveness, 'f',3) + " ";
+    result += "\tAGR: " + QString::number(agrLevel, 'f',3) + " ";
+    result += "\tATT: " + QString::number(attLevel, 'f',3) + " ";
+    result += "\tCHA: " + QString::number(charisma, 'f',3) + " ";
     return result;
 }
