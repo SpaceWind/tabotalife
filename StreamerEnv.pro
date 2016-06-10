@@ -18,12 +18,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     library.cpp \
     entities.cpp \
-    singleiterationemulate.cpp
+    singleiterationemulate.cpp \
+    streamerenv.cpp
 
 HEADERS  += mainwindow.h \
     library.h \
     entities.h \
-    singleiterationemulate.h
+    singleiterationemulate.h \
+    streamerenv.h
 
 FORMS    += mainwindow.ui \
-    singleiterationemulate.ui
+    singleiterationemulate.ui \
+    streamerenv.ui

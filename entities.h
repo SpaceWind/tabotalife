@@ -2,7 +2,9 @@
 #define VIEWERDESC_H
 
 #include "library.h"
+#define FRAND (double(rand()%RAND_MAX)/double(RAND_MAX))
 
+class StreamerDesc;
 
 class ViewerDesc
 {
@@ -10,6 +12,7 @@ public:
     ViewerDesc();
 
     static ViewerDesc generate(ViewerLibrary * library);
+    static ViewerDesc *generateDynamic(ViewerLibrary * library);
 
     double age;
     double alphaLevel;
@@ -22,6 +25,8 @@ public:
         int timeEnd;
     };
     QHash<int, TimeRange> viewTime;
+    QList<StreamerDesc*> followed;
+    QHash<StreamerDesc*, double> watchTime;
 
     double aggressionInterest;
     double qualityImportance;
@@ -39,9 +44,16 @@ public:
     StreamerDesc();
     StreamerDesc(ViewerLibrary * library);
     static StreamerDesc generate(ViewerLibrary * library);
+    static StreamerDesc *generateDynamic(ViewerLibrary * library);
     double test(ViewerDesc v) const;
     static QString getRandomString();
     QString getDesc();
+
+
+    void follow(ViewerDesc* v);
+    void unfollow(ViewerDesc * v);
+    void subscribe(ViewerDesc * v);
+    void unsubcribe(ViewerDesc * v);
 
     QString name;
     bool isMale;
@@ -52,6 +64,10 @@ public:
     double agrLevel;
     double attLevel;
     double charisma;
+
+    QList<ViewerDesc*> followers;
+    QList<ViewerDesc*> subscribers;
+    int currentViewers;
 private:
     ViewerLibrary * lib;
 };

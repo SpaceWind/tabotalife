@@ -1,7 +1,6 @@
 #include "entities.h"
 #include "math.h"
 
-#define FRAND (double(rand()%RAND_MAX)/double(RAND_MAX))
 
 ViewerDesc::ViewerDesc()
 {
@@ -64,6 +63,13 @@ ViewerDesc ViewerDesc::generate(ViewerLibrary *library)
     return result;
 }
 
+ViewerDesc *ViewerDesc::generateDynamic(ViewerLibrary *library)
+{
+    ViewerDesc * newViewer = new ViewerDesc();
+    (*newViewer) = ViewerDesc::generate(library);
+    return newViewer;
+}
+
 
 StreamerDesc::StreamerDesc()
 {
@@ -77,6 +83,7 @@ StreamerDesc::StreamerDesc(ViewerLibrary *library)
     lib = library;
     isMale = 0;
     pictureQuality = webCamQuality = skillLevel = interactiveness = agrLevel = attLevel = charisma = 0.0;
+    currentViewers = 0;
 }
 
 StreamerDesc StreamerDesc::generate(ViewerLibrary *library)
@@ -91,6 +98,13 @@ StreamerDesc StreamerDesc::generate(ViewerLibrary *library)
     result.agrLevel = FRAND;
     result.attLevel = FRAND;
     result.charisma = FRAND;
+    return result;
+}
+
+StreamerDesc *StreamerDesc::generateDynamic(ViewerLibrary *library)
+{
+    StreamerDesc * result = new StreamerDesc(library);
+    (*result) = StreamerDesc::generate(library);
     return result;
 }
 
@@ -134,4 +148,26 @@ QString StreamerDesc::getDesc()
     result += "\tATT: " + QString::number(attLevel, 'f',3) + " ";
     result += "\tCHA: " + QString::number(charisma, 'f',3) + " ";
     return result;
+}
+
+void StreamerDesc::follow(ViewerDesc *v)
+{
+    if (!followers.contains(v))
+        followers.append(v);
+}
+
+void StreamerDesc::unfollow(ViewerDesc *v)
+{
+    followers.removeOne(v);
+}
+
+void StreamerDesc::subscribe(ViewerDesc *v)
+{
+    if (!subscribers.contains(v))
+        subscribers.append(v);
+}
+
+void StreamerDesc::unsubcribe(ViewerDesc *v)
+{
+    subscribers.removeOne(v);
 }
