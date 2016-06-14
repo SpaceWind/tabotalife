@@ -49,7 +49,17 @@ public:
     static QString getRandomString();
     QString getDesc();
 
-    bool operator<(const StreamerDesc* other) const { return currentViewers > other->currentViewers; }
+    bool operator<(const StreamerDesc* other) const
+    {
+        if (currentViewers == other->currentViewers)
+        {
+            if (followers.count() == other->followers.count())
+                return channelViews > other->channelViews;
+            else
+                return followers.count() > other->followers.count();
+        }
+        return currentViewers > other->currentViewers;
+    }
 
 
     void follow(ViewerDesc* v);
@@ -70,6 +80,7 @@ public:
     QList<ViewerDesc*> followers;
     QList<ViewerDesc*> subscribers;
     int currentViewers;
+    int channelViews;
 private:
     ViewerLibrary * lib;
 };

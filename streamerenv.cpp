@@ -64,7 +64,7 @@ void StreamerEnviroment::update(int time, bool newHour)
             if (watchers.contains(v))
                 watchers.remove(v);
             watchers[v] = s;
-            qDebug() << "NH: " << v;
+            s->channelViews++;
             emit onDecideWatch(s,v);
         }
         for (int i = 0; i<currentViewersSleepTime.count(); ++i)
@@ -82,14 +82,16 @@ void StreamerEnviroment::update(int time, bool newHour)
     for (QList<ViewerDesc*>::iterator it = keys.begin(); it != keys.end(); ++it)
     {
         ViewerDesc * v = (*it);
-        auto str = watchers[v];
-        qDebug() << str << "V=" << v;
         v->watchTime[watchers[v]] += 0.5;
-        if (v->watchTime[watchers[v]] > 8.0)
+
+        if (v->watchTime[watchers[v]] > (v->age-10.0)/50.*4.0+4.0)
         {
-            watchers[v]->follow(v);
-            v->followed.append(watchers[v]);
-            emit onFollowed(watchers[v], v);
+            if (!v->followed.contains(watchers[v]))
+            {
+                watchers[v]->follow(v);
+                v->followed.append(watchers[v]);
+                emit onFollowed(watchers[v], v);
+            }
         }
         if (rand()%10 == 0) //should depend on qiality of stream!
         {
@@ -97,6 +99,7 @@ void StreamerEnviroment::update(int time, bool newHour)
             watchers.remove(v);
             StreamerDesc * s = findStreamer(v);
             s->currentViewers++;
+            s->channelViews++;
             watchers[v] = s;
         }
     }
@@ -224,8 +227,9 @@ void StreamerEnv::onTimer()
         for (int i = 0; i < 50; i++)
         {
             StreamerDesc * currentStreamer = env.topStreamers[i];
-            ui->listWidget->addItem(currentStreamer->name + ": " + QString::number(currentStreamer->currentViewers) + " F[" +
-                                    QString::number(currentStreamer->followers.count()) + "] {" + currentStreamer->getDesc() + "}");
+            ui->listWidget->addItem(currentStreamer->name + ": " + QString::number(currentStreamer->currentViewers) + " INFO:[" +
+                                    QString::number(currentStreamer->followers.count()) + " / " +
+                                    QString::number(currentStreamer->channelViews) + "]\t{" + currentStreamer->getDesc() + "}");
             ui->label_2->setText("Users online: " + QString::number(env.watchers.count()));
         }
     }
@@ -234,6 +238,8 @@ void StreamerEnv::onTimer()
 
 void StreamerEnv::onFollowed(StreamerDesc *s, ViewerDesc *v)
 {
+    if (currentTime == 0)
+        ui->plainTextEdit->clear();
     ui->plainTextEdit->appendPlainText("Viewer followed " + s->name);
 }
 

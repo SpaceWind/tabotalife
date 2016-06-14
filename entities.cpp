@@ -28,6 +28,9 @@ ViewerDesc ViewerDesc::generate(ViewerLibrary *library)
         result.isMale = true;
 
     int fiveDaysStartWatchHour = 19 + rand()%6 - 3;
+    if (FRAND > 0.8) //owl
+        fiveDaysStartWatchHour+=rand()%12;
+    fiveDaysStartWatchHour %= 24;
     double timeLenMod = library->ageConfigLibrary.getTimeLenCoef(result.age);
     for (int i = 128; i>1; i/=2)
     {
@@ -84,6 +87,7 @@ StreamerDesc::StreamerDesc(ViewerLibrary *library)
     isMale = 0;
     pictureQuality = webCamQuality = skillLevel = interactiveness = agrLevel = attLevel = charisma = 0.0;
     currentViewers = 0;
+    channelViews = 0;
 }
 
 StreamerDesc StreamerDesc::generate(ViewerLibrary *library)
