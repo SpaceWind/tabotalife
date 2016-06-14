@@ -55,6 +55,11 @@ private slots:
     void onDecideWatch(StreamerDesc* s, ViewerDesc* v);
     void onSleep(ViewerDesc* v);
 
+
+    void on_pushButton_2_clicked();
+
+    void on_horizontalSlider_sliderMoved(int position);
+
 private:
     Ui::StreamerEnv *ui;
     StreamerEnviroment env;

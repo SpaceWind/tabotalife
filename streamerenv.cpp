@@ -7,6 +7,12 @@ StreamerEnv::StreamerEnv(QWidget *parent) :
     ui(new Ui::StreamerEnv)
 {
     ui->setupUi(this);
+    currentTime = 0;
+    connect(&timer, SIGNAL(timeout()), this,SLOT(onTimer()));
+    connect(&env,SIGNAL(onFollowed(StreamerDesc*,ViewerDesc*)),this,SLOT(onFollowed(StreamerDesc*,ViewerDesc*)));
+    connect(&env,SIGNAL(onDecideWatch(StreamerDesc*,ViewerDesc*)),this,SLOT(onDecideWatch(StreamerDesc*,ViewerDesc*)));
+    connect(&env,SIGNAL(onSleep(ViewerDesc*)),this,SLOT(onSleep(ViewerDesc*)));
+    env.generateEnviroment(100000, 500);
 }
 
 StreamerEnv::~StreamerEnv()
@@ -201,13 +207,8 @@ void StreamerEnviroment::quickSortPrivate(int l, int r)
 
 void StreamerEnv::on_pushButton_clicked()
 {
-    env.generateEnviroment(100000, 500);
-    connect(&timer, SIGNAL(timeout()), this,SLOT(onTimer()));
-    connect(&env,SIGNAL(onFollowed(StreamerDesc*,ViewerDesc*)),this,SLOT(onFollowed(StreamerDesc*,ViewerDesc*)));
-    connect(&env,SIGNAL(onDecideWatch(StreamerDesc*,ViewerDesc*)),this,SLOT(onDecideWatch(StreamerDesc*,ViewerDesc*)));
-    connect(&env,SIGNAL(onSleep(ViewerDesc*)),this,SLOT(onSleep(ViewerDesc*)));
-    timer.start(150);
-    currentTime = 7;
+    timer.start(100);
+  //  currentTime = 7;
 }
 
 void StreamerEnv::onTimer()
@@ -251,4 +252,45 @@ void StreamerEnv::onDecideWatch(StreamerDesc *s, ViewerDesc *v)
 void StreamerEnv::onSleep(ViewerDesc *v)
 {
 
+}
+
+
+void StreamerEnv::on_pushButton_2_clicked()
+{
+    timer.stop();
+}
+
+void StreamerEnv::on_horizontalSlider_sliderMoved(int position)
+{
+    switch (position)
+    {
+    case 0:
+        timer.setInterval(20);
+        break;
+    case 1:
+        timer.setInterval(100);
+        break;
+    case 2:
+        timer.setInterval(200);
+        break;
+    case 3:
+        timer.setInterval(300);
+        break;
+    case 4:
+        timer.setInterval(500);
+        break;
+    case 5:
+        timer.setInterval(750);
+        break;
+    case 6:
+        timer.setInterval(1000);
+        break;
+    case 7:
+        timer.setInterval(1500);
+        break;
+    case 8:
+    default:
+        timer.setInterval(2000);
+        break;
+    }
 }
