@@ -1,5 +1,6 @@
 #include "streamerenv.h"
 #include "ui_streamerenv.h"
+#include <QDebug>
 
 StreamerEnv::StreamerEnv(QWidget *parent) :
     QWidget(parent),
@@ -40,12 +41,21 @@ void StreamerEnviroment::generateEnviroment(int viewerPool, int streamerPool)
     }
 }
 
+bool compareStreamerByViewers(const StreamerDesc &s1, const StreamerDesc &s2)
+{
+    return s1.currentViewers > s2.currentViewers;
+}
+
 void StreamerEnviroment::update(int time, bool newHour)
 {
     if (newHour)
     {
-        auto currentViewersWakeTime = viewersWakeTime[time];
-        auto currentViewersSleepTime = viewersSleepTime[time];
+
+        QList<ViewerDesc*> currentViewersWakeTime;
+        QList<ViewerDesc*> currentViewersSleepTime;
+        if (viewersWakeTime.contains(time)) currentViewersWakeTime = viewersWakeTime[time];
+        if (viewersSleepTime.contains(time)) currentViewersSleepTime = viewersSleepTime[time];
+
         for (int i = 0; i<currentViewersWakeTime.count(); ++i)
         {
             ViewerDesc * v = currentViewersWakeTime[i];
@@ -54,6 +64,8 @@ void StreamerEnviroment::update(int time, bool newHour)
             if (watchers.contains(v))
                 watchers.remove(v);
             watchers[v] = s;
+            qDebug() << "NH: " << v;
+            emit onDecideWatch(s,v);
         }
         for (int i = 0; i<currentViewersSleepTime.count(); ++i)
         {
@@ -62,23 +74,22 @@ void StreamerEnviroment::update(int time, bool newHour)
              {
                  watchers[v]->currentViewers--;
                  watchers.remove(v);
+                 emit onSleep(v);
              }
         }
     }
-  /*  QList<ViewerDesc*> watchersList = watchers.keys();
-    for (int i = 0; i<watchersList.count(); i++)
-    {
-        watchersList[i]->watchTime[watchers[watchers[i]]]
-    //    watchers[i]->watchTime[wa]
-    }*/
-    for (auto it = watchers.keys().begin(); it != watchers.keys().end(); ++it)
+    QList<ViewerDesc*> keys = watchers.keys();
+    for (QList<ViewerDesc*>::iterator it = keys.begin(); it != keys.end(); ++it)
     {
         ViewerDesc * v = (*it);
+        auto str = watchers[v];
+        qDebug() << str << "V=" << v;
         v->watchTime[watchers[v]] += 0.5;
-        if (v->watchTime[watchers[v]] > 4.0)
+        if (v->watchTime[watchers[v]] > 8.0)
         {
             watchers[v]->follow(v);
             v->followed.append(watchers[v]);
+            emit onFollowed(watchers[v], v);
         }
         if (rand()%10 == 0) //should depend on qiality of stream!
         {
@@ -89,9 +100,7 @@ void StreamerEnviroment::update(int time, bool newHour)
             watchers[v] = s;
         }
     }
-    //sort top streamer!
-
-    std::sort(topStreamers.first(),topStreamers.last(), [](StreamerDesc &a, StreamerDesc &b) { return a.currentViewers > b.currentViewers; } );
+    sortTopStreamers();
 }
 
 StreamerDesc *StreamerEnviroment::findStreamer(const ViewerDesc *v)
@@ -102,22 +111,27 @@ StreamerDesc *StreamerEnviroment::findStreamer(const ViewerDesc *v)
   //  C.1 Took RANDOM pool*0.2
   //  3. Ищем по top SR%, но при этом есть шанс SR*2%, что юзер пойдет искать, выбирая рандомно pool*0.2 стримов, вместо поиска по лучшим.
 
-    if (FRAND > v->searchingRate/100.)
+    if (FRAND > v->searchingRate/75.)
     {
         //QHash<StreamerDesc*, double> followingResult;
         std::map<double, StreamerDesc*> followingResult;
+        double minValue = 100000., maxValue = -10000.0;
         for (auto it = v->followed.begin(); it != v->followed.end(); ++it)
         {
             StreamerDesc * s = (*it);
+            double value = s->test(*v);
+            if (value < minValue) minValue = value;
+            if (value > maxValue) maxValue = value;
             followingResult[s->test(*v)] = s;
         }
-        return followingResult.upper_bound(FRAND)->second;
+        if (!followingResult.empty())
+            return followingResult.upper_bound(FRAND*(maxValue - minValue) - minValue)->second;
     }
-    else if (FRAND > v->searchingRate/50.)
+    if (FRAND > v->searchingRate/50.)
     {
-        int maxCount = v->searchingRate/100.*topStreamers.count();
+        int maxCount = v->searchingRate/100.*topStreamers.count() + 10;
         StreamerDesc * foundStreamer = 0;
-        double value = -1000.0;
+        double value = -1000000.0;
         for(int i = 0; i < maxCount; ++i)
         {
             double currentValue = topStreamers[i]->test(*v);
@@ -127,23 +141,108 @@ StreamerDesc *StreamerEnviroment::findStreamer(const ViewerDesc *v)
                 foundStreamer = topStreamers[i];
             }
         }
-        return foundStreamer;
+        if (foundStreamer)
+            return foundStreamer;
     }
-    else
+
+
+    StreamerDesc * foundStreamer = 0;
+    double value = -10000.0;
+    int pickCount = streamers.count()/5;
+
+    bool getFound = false;
+    for (int i = 0; i<pickCount; ++i)
     {
-        StreamerDesc * foundStreamer = 0;
-        double value = -10000.0;
-        int pickCount = streamers.count()/5;
-        for (int i = 0; i<pickCount; ++i)
+        int itemIndex = rand()%streamers.count();
+        double currentValue = streamers[itemIndex]->test(*v);
+        if (currentValue > value)
         {
-            int itemIndex = rand()%streamers.count();
-            double currentValue = streamers[itemIndex]->test(*v);
-            if (currentValue > value)
-            {
-                value = currentValue;
-                foundStreamer = streamers[itemIndex];
-            }
+            value = currentValue;
+            foundStreamer = streamers[itemIndex];
+            getFound = true;
         }
-        return foundStreamer;
+        if (!getFound)
+        {
+            std::abort();
+        }
     }
+    return foundStreamer;
+}
+
+void StreamerEnviroment::sortTopStreamers()
+{
+    quickSortPrivate(0,topStreamers.count() - 1);
+}
+
+void StreamerEnviroment::quickSortPrivate(int l, int r)
+{
+    int x = topStreamers[l + (r - l) / 2]->currentViewers;
+    int i = l;
+    int j = r;
+    while (i <= j)
+    {
+        while (topStreamers[i]->currentViewers > x) i++;
+        while (topStreamers[j]->currentViewers < x) j--;
+        if (i <= j)
+        {
+            topStreamers.swap(i,j);
+            i++;
+            j--;
+        }
+    }
+    if (i < r)
+        quickSortPrivate(i, r);
+    if (l < r)
+        quickSortPrivate(l,j);
+}
+
+void StreamerEnv::on_pushButton_clicked()
+{
+    env.generateEnviroment(100000, 500);
+    connect(&timer, SIGNAL(timeout()), this,SLOT(onTimer()));
+    connect(&env,SIGNAL(onFollowed(StreamerDesc*,ViewerDesc*)),this,SLOT(onFollowed(StreamerDesc*,ViewerDesc*)));
+    connect(&env,SIGNAL(onDecideWatch(StreamerDesc*,ViewerDesc*)),this,SLOT(onDecideWatch(StreamerDesc*,ViewerDesc*)));
+    connect(&env,SIGNAL(onSleep(ViewerDesc*)),this,SLOT(onSleep(ViewerDesc*)));
+    timer.start(150);
+    currentTime = 7;
+}
+
+void StreamerEnv::onTimer()
+{
+    static int v = 1;
+    static int minutes = 0;
+    minutes++; minutes %= 60;
+
+    if (minutes%30 == 0)
+    {
+        v = 1 - v;
+        if (v%2){
+            currentTime++; currentTime%=24;}
+
+        env.update(currentTime, v%2);
+        ui->listWidget->clear();
+        for (int i = 0; i < 50; i++)
+        {
+            StreamerDesc * currentStreamer = env.topStreamers[i];
+            ui->listWidget->addItem(currentStreamer->name + ": " + QString::number(currentStreamer->currentViewers) + " F[" +
+                                    QString::number(currentStreamer->followers.count()) + "] {" + currentStreamer->getDesc() + "}");
+            ui->label_2->setText("Users online: " + QString::number(env.watchers.count()));
+        }
+    }
+    ui->label->setText(QString::number(currentTime) + ":" + QString::number(minutes));
+}
+
+void StreamerEnv::onFollowed(StreamerDesc *s, ViewerDesc *v)
+{
+    ui->plainTextEdit->appendPlainText("Viewer followed " + s->name);
+}
+
+void StreamerEnv::onDecideWatch(StreamerDesc *s, ViewerDesc *v)
+{
+
+}
+
+void StreamerEnv::onSleep(ViewerDesc *v)
+{
+
 }

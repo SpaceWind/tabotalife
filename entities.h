@@ -49,6 +49,8 @@ public:
     static QString getRandomString();
     QString getDesc();
 
+    bool operator<(const StreamerDesc* other) const { return currentViewers > other->currentViewers; }
+
 
     void follow(ViewerDesc* v);
     void unfollow(ViewerDesc * v);

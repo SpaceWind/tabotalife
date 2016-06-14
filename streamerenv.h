@@ -2,6 +2,8 @@
 #define STREAMERENV_H
 
 #include <QWidget>
+#include <QTimer>
+#include <QVector>
 #include "entities.h"
 
 namespace Ui {
@@ -9,15 +11,16 @@ class StreamerEnv;
 }
 
 
-class StreamerEnviroment
+class StreamerEnviroment : public QObject
 {
+    Q_OBJECT
 public:
     StreamerEnviroment();
     ~StreamerEnviroment();
     void generateEnviroment(int viewerPool, int streamerPool);
     void update(int time, bool newHour);
     StreamerDesc* findStreamer(const ViewerDesc* v);
-private:
+//private:
     ViewerLibrary * library;
     QList<StreamerDesc*> topStreamers;
     QList<StreamerDesc*> streamers;
@@ -25,6 +28,14 @@ private:
     QHash<int, QList<ViewerDesc*> > viewersSleepTime;
     QHash<ViewerDesc*, StreamerDesc*> watchers;
     QList<ViewerDesc*> viewers;
+
+    void sortTopStreamers();
+    void quickSortPrivate(int l, int r);
+
+signals:
+    void onFollowed(StreamerDesc*, ViewerDesc*);
+    void onDecideWatch(StreamerDesc*, ViewerDesc*);
+    void onSleep(ViewerDesc*);
 };
 
 
@@ -36,8 +47,19 @@ public:
     explicit StreamerEnv(QWidget *parent = 0);
     ~StreamerEnv();
 
+private slots:
+    void on_pushButton_clicked();
+    void onTimer();
+
+    void onFollowed(StreamerDesc*s, ViewerDesc* v);
+    void onDecideWatch(StreamerDesc* s, ViewerDesc* v);
+    void onSleep(ViewerDesc* v);
+
 private:
     Ui::StreamerEnv *ui;
+    StreamerEnviroment env;
+    QTimer timer;
+    int currentTime;
 };
 
 #endif // STREAMERENV_H

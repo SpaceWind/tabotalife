@@ -27,12 +27,12 @@ ViewerDesc ViewerDesc::generate(ViewerLibrary *library)
     else
         result.isMale = true;
 
-    int fiveDaysStartWatchHour = 16 + rand()%6 - 3;
+    int fiveDaysStartWatchHour = 19 + rand()%6 - 3;
     double timeLenMod = library->ageConfigLibrary.getTimeLenCoef(result.age);
     for (int i = 128; i>1; i/=2)
     {
         if (rand()%256 < i)
-            fiveDaysStartWatchHour+= rand()%4 - 2;
+            fiveDaysStartWatchHour+= rand()%6 - 3;
     }
     for (int i = 0; i< 7; i++)
     {
