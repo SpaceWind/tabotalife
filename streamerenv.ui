@@ -39,7 +39,14 @@
     <widget class="QListWidget" name="listWidget"/>
    </item>
    <item row="5" column="1" colspan="2">
-    <widget class="QPlainTextEdit" name="plainTextEdit"/>
+    <widget class="QPlainTextEdit" name="plainTextEdit">
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
    </item>
    <item row="3" column="2">
     <widget class="QPushButton" name="pushButton_2">
@@ -59,6 +66,9 @@
     <widget class="QSlider" name="horizontalSlider">
      <property name="maximum">
       <number>8</number>
+     </property>
+     <property name="value">
+      <number>1</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

@@ -18,6 +18,7 @@ public:
     double alphaLevel;
     double casuality;
     bool isMale;
+    QString name;
 
     struct TimeRange
     {

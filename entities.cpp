@@ -10,6 +10,7 @@ ViewerDesc::ViewerDesc()
 ViewerDesc ViewerDesc::generate(ViewerLibrary *library)
 {
     ViewerDesc result;
+    result.name = library->viewerNameLibrary.generateName();
     result.age = qrand()%12 +10;    //10..22
     for (int i = 1; i<5; i++)
     {
@@ -93,7 +94,7 @@ StreamerDesc::StreamerDesc(ViewerLibrary *library)
 StreamerDesc StreamerDesc::generate(ViewerLibrary *library)
 {
     StreamerDesc result(library);
-    result.name = getRandomString();
+    result.name = library->streamerNameLibrary.generateName();
     result.isMale = (rand()%2 == 0);
     result.pictureQuality = FRAND;
     result.webCamQuality = FRAND;

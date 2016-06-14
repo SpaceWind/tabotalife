@@ -89,24 +89,28 @@ void StreamerEnviroment::update(int time, bool newHour)
     {
         ViewerDesc * v = (*it);
         v->watchTime[watchers[v]] += 0.5;
-
-        if (v->watchTime[watchers[v]] > (v->age-10.0)/50.*4.0+4.0)
+        if (watchers[v])
         {
-            if (!v->followed.contains(watchers[v]))
+            qDebug() << "Watcher is ok!";
+            if (v->watchTime[watchers[v]] > (v->age-10.0)/50.*4.0+4.0)
             {
-                watchers[v]->follow(v);
-                v->followed.append(watchers[v]);
-                emit onFollowed(watchers[v], v);
+                qDebug() << "Trying to follow";
+                if (!v->followed.contains(watchers[v]))
+                {
+                    watchers[v]->follow(v);
+                    v->followed.append(watchers[v]);
+                    emit onFollowed(watchers[v], v);
+                }
             }
-        }
-        if (rand()%10 == 0) //should depend on quality of the stream!
-        {
-            watchers[v]->currentViewers--;
-            watchers.remove(v);
-            StreamerDesc * s = findStreamer(v);
-            s->currentViewers++;
-            s->channelViews++;
-            watchers[v] = s;
+            if (rand()%10 == 0) //should depend on quality of the stream!
+            {
+                watchers[v]->currentViewers--;
+                watchers.remove(v);
+                StreamerDesc * s = findStreamer(v);
+                s->currentViewers++;
+                s->channelViews++;
+                watchers[v] = s;
+            }
         }
     }
     sortTopStreamers();
@@ -175,6 +179,10 @@ StreamerDesc *StreamerEnviroment::findStreamer(const ViewerDesc *v)
             std::abort();
         }
     }
+    if (foundStreamer == NULL)
+    {
+        qDebug() <<"ERROR: cant find the streamer!";
+    }
     return foundStreamer;
 }
 
@@ -208,7 +216,6 @@ void StreamerEnviroment::quickSortPrivate(int l, int r)
 void StreamerEnv::on_pushButton_clicked()
 {
     timer.start(100);
-  //  currentTime = 7;
 }
 
 void StreamerEnv::onTimer()
@@ -241,7 +248,7 @@ void StreamerEnv::onFollowed(StreamerDesc *s, ViewerDesc *v)
 {
     if (currentTime == 0)
         ui->plainTextEdit->clear();
-    ui->plainTextEdit->appendPlainText("Viewer followed " + s->name);
+    ui->plainTextEdit->appendPlainText(v->name + " followed " + s->name);
 }
 
 void StreamerEnv::onDecideWatch(StreamerDesc *s, ViewerDesc *v)

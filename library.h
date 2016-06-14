@@ -80,6 +80,18 @@ struct CasualityLibrary
     QList<CasualityConfig> data;
 };
 
+struct ViewerNameLibrary
+{
+    QString generateName();
+    QStringList namePrefix, nameRoot, nameSuffix, familyPrefix, familyRoot, familySuffix;
+};
+
+struct StreamerNameLibrary
+{
+    QString generateName();
+    QStringList namePrefix, nameRoot, nameRoot2, nameSuffix;
+};
+
 class CSVFile
 {
 public:
@@ -103,6 +115,9 @@ public:
     AlphaPaymentAbilityLibrary alphaPaymentAbilityLibrary;
     AggressionAlphaInterestingLibrary aggressionAlphaInterestingLibrary;
     CasualityLibrary casualityLibrary;
+    ViewerNameLibrary viewerNameLibrary;
+    StreamerNameLibrary streamerNameLibrary;
 };
+
 
 #endif // LIBRARY_H

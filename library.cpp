@@ -501,5 +501,37 @@ ViewerLibrary::ViewerLibrary(QString path)
         casualityLibrary.data.append(casualityConfig);
     }
 
+    csv.load(path + "viewerNames.csv");
+    foreach (const auto &row, csv.rows)
+    {
+        viewerNameLibrary.namePrefix.append(row["NamePrefix"]);
+        viewerNameLibrary.nameRoot.append(row["NameRoot"]);
+        viewerNameLibrary.nameSuffix.append(row["NameSuffix"]);
+        viewerNameLibrary.familyPrefix.append(row["FamilyPrefix"]);
+        viewerNameLibrary.familyRoot.append(row["FamilyRoot"]);
+        viewerNameLibrary.familySuffix.append(row["FamilySuffix"]);
+    }
 
+    csv.load(path + "streamerNames.csv");
+    foreach (const auto &row, csv.rows)
+    {
+        streamerNameLibrary.namePrefix.append(row["NamePrefix"]);
+        streamerNameLibrary.nameRoot.append(row["NameRoot"]);
+        streamerNameLibrary.nameRoot2.append(row["NameRoot"]);
+        streamerNameLibrary.nameSuffix.append(row["NameSuffix"]);
+    }
+
+
+
+}
+
+QString ViewerNameLibrary::generateName()
+{
+    return namePrefix.at(rand()%namePrefix.count()) + nameRoot.at(rand()%nameRoot.count()) + nameSuffix.at(rand()%nameSuffix.count()) + " " +
+              familyPrefix.at(rand()%familyPrefix.count()) + familyRoot.at(rand()%familyRoot.count()) + familySuffix.at(rand()%familySuffix.count());
+}
+
+QString StreamerNameLibrary::generateName()
+{
+    return namePrefix.at(rand()%namePrefix.count()) + nameRoot.at(rand()%nameRoot.count()) + nameRoot2.at(rand()%nameRoot2.count()) + nameSuffix.at(rand()%nameSuffix.count());
 }
