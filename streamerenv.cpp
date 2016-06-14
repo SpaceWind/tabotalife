@@ -99,7 +99,7 @@ void StreamerEnviroment::update(int time, bool newHour)
                 emit onFollowed(watchers[v], v);
             }
         }
-        if (rand()%10 == 0) //should depend on qiality of stream!
+        if (rand()%10 == 0) //should depend on quality of the stream!
         {
             watchers[v]->currentViewers--;
             watchers.remove(v);
@@ -265,7 +265,7 @@ void StreamerEnv::on_horizontalSlider_sliderMoved(int position)
     switch (position)
     {
     case 0:
-        timer.setInterval(20);
+        timer.setInterval(50);
         break;
     case 1:
         timer.setInterval(100);
