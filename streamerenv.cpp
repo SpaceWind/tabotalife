@@ -12,7 +12,7 @@ StreamerEnv::StreamerEnv(QWidget *parent) :
     connect(&env,SIGNAL(onFollowed(StreamerDesc*,ViewerDesc*)),this,SLOT(onFollowed(StreamerDesc*,ViewerDesc*)));
     connect(&env,SIGNAL(onDecideWatch(StreamerDesc*,ViewerDesc*)),this,SLOT(onDecideWatch(StreamerDesc*,ViewerDesc*)));
     connect(&env,SIGNAL(onSleep(ViewerDesc*)),this,SLOT(onSleep(ViewerDesc*)));
-    env.generateEnviroment(100000, 500);
+    env.generateEnviroment(250000, 50);
 }
 
 StreamerEnv::~StreamerEnv()
@@ -91,10 +91,8 @@ void StreamerEnviroment::update(int time, bool newHour)
         v->watchTime[watchers[v]] += 0.5;
         if (watchers[v])
         {
-            qDebug() << "Watcher is ok!";
-            if (v->watchTime[watchers[v]] > (v->age-10.0)/50.*4.0+4.0)
+            if (v->watchTime[watchers[v]] > 4.0)
             {
-                qDebug() << "Trying to follow";
                 if (!v->followed.contains(watchers[v]))
                 {
                     watchers[v]->follow(v);
@@ -118,12 +116,6 @@ void StreamerEnviroment::update(int time, bool newHour)
 
 StreamerDesc *StreamerEnviroment::findStreamer(const ViewerDesc *v)
 {
-  //  A.1 find one in followed list (weighted random) and return him. Or if proc - instead go to next step;
-  //  B.1 find one in all list
-  //  B.2 Took top SR% items from topStreamers and find best one. OR if proc SR*2% - go to C
-  //  C.1 Took RANDOM pool*0.2
-  //  3. Ищем по top SR%, но при этом есть шанс SR*2%, что юзер пойдет искать, выбирая рандомно pool*0.2 стримов, вместо поиска по лучшим.
-
     if (FRAND > v->searchingRate/75.)
     {
         //QHash<StreamerDesc*, double> followingResult;
