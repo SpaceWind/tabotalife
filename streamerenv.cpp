@@ -8,11 +8,12 @@ StreamerEnv::StreamerEnv(QWidget *parent) :
 {
     ui->setupUi(this);
     currentTime = 0;
+    currentDayOfWeek = 0;
     connect(&timer, SIGNAL(timeout()), this,SLOT(onTimer()));
     connect(&env,SIGNAL(onFollowed(StreamerDesc*,ViewerDesc*)),this,SLOT(onFollowed(StreamerDesc*,ViewerDesc*)));
     connect(&env,SIGNAL(onDecideWatch(StreamerDesc*,ViewerDesc*)),this,SLOT(onDecideWatch(StreamerDesc*,ViewerDesc*)));
     connect(&env,SIGNAL(onSleep(ViewerDesc*)),this,SLOT(onSleep(ViewerDesc*)));
-    env.generateEnviroment(250000, 50);
+    env.generateEnviroment(250000, 1000);
 }
 
 StreamerEnv::~StreamerEnv()
@@ -35,15 +36,38 @@ void StreamerEnviroment::generateEnviroment(int viewerPool, int streamerPool)
     for (int i = 0; i< viewerPool; ++i)
     {
         ViewerDesc * v = ViewerDesc::generateDynamic(library);
-        viewersWakeTime[v->viewTime[0].timeStart].append(v);
-        viewersSleepTime[v->viewTime[0].timeEnd].append(v);
+        for (int i = 0; i < 7; i++)
+        {
+            if (v->viewTime.contains(i))
+            {
+                WeekDayHour wdh;
+                wdh.dayOfWeek = i;
+                wdh.hour = v->viewTime[i].timeStart;
+                viewersWakeTime[wdh.value()].append(v);
+                wdh.hour = v->viewTime[i].timeEnd;
+                viewersSleepTime[wdh.value()].append(v);
+            }
+        }
         viewers.append(v);
     }
     for (int i = 0; i < streamerPool; i++)
     {
         StreamerDesc * s = StreamerDesc::generateDynamic(library);
-        topStreamers.append(s);
-        streamers.append(s);
+
+        for (int i = 0; i < 7; i++)
+        {
+            if (s->streamTime.contains(i))
+            {
+                WeekDayHour wdh;
+                wdh.dayOfWeek = i;
+                wdh.hour = s->streamTime[i].timeStart;
+                streamersWakeTime[wdh.value()].append(s);
+                wdh.hour = s->streamTime[i].timeEnd;
+                streamersSleepTime[wdh.value()].append(s);
+            }
+        }
+     //   topStreamers.append(s);
+     //   streamers.append(s);
     }
 }
 
@@ -52,15 +76,34 @@ bool compareStreamerByViewers(const StreamerDesc &s1, const StreamerDesc &s2)
     return s1.currentViewers > s2.currentViewers;
 }
 
-void StreamerEnviroment::update(int time, bool newHour)
+void StreamerEnviroment::update(WeekDayHour wdh, bool newHour)
 {
     if (newHour)
     {
 
         QList<ViewerDesc*> currentViewersWakeTime;
         QList<ViewerDesc*> currentViewersSleepTime;
-        if (viewersWakeTime.contains(time)) currentViewersWakeTime = viewersWakeTime[time];
-        if (viewersSleepTime.contains(time)) currentViewersSleepTime = viewersSleepTime[time];
+        QList<StreamerDesc*> currentStreamersWakeTime;
+        QList<StreamerDesc*> currentStreamersSleepTime;
+
+        int value = wdh.value();
+        if (viewersWakeTime.contains(value)) currentViewersWakeTime = viewersWakeTime[value];
+        if (viewersSleepTime.contains(value)) currentViewersSleepTime = viewersSleepTime[value];
+        if (streamersWakeTime.contains(value)) currentStreamersWakeTime = streamersWakeTime[value];
+        if (streamersSleepTime.contains(value)) currentStreamersSleepTime = streamersSleepTime[value];
+
+        for (int i = 0; i < currentStreamersWakeTime.count(); ++i)
+        {
+            StreamerDesc * s = currentStreamersWakeTime[i];
+            streamers.append(s);
+            topStreamers.append(s);
+        }
+        for (int i = 0; i < currentStreamersSleepTime.count(); ++i)
+        {
+            StreamerDesc * s = currentStreamersSleepTime[i];
+            streamers.removeOne(s);
+            topStreamers.removeOne(s);
+        }
 
         for (int i = 0; i<currentViewersWakeTime.count(); ++i)
         {
@@ -71,7 +114,7 @@ void StreamerEnviroment::update(int time, bool newHour)
                 watchers.remove(v);
             watchers[v] = s;
             s->channelViews++;
-            emit onDecideWatch(s,v);
+          //  emit onDecideWatch(s,v);
         }
         for (int i = 0; i<currentViewersSleepTime.count(); ++i)
         {
@@ -80,7 +123,7 @@ void StreamerEnviroment::update(int time, bool newHour)
              {
                  watchers[v]->currentViewers--;
                  watchers.remove(v);
-                 emit onSleep(v);
+             //    emit onSleep(v);
              }
         }
     }
@@ -97,7 +140,7 @@ void StreamerEnviroment::update(int time, bool newHour)
                 {
                     watchers[v]->follow(v);
                     v->followed.append(watchers[v]);
-                    emit onFollowed(watchers[v], v);
+                 //   emit onFollowed(watchers[v], v);
                 }
             }
             if (rand()%10 == 0) //should depend on quality of the stream!
@@ -111,7 +154,8 @@ void StreamerEnviroment::update(int time, bool newHour)
             }
         }
     }
-    sortTopStreamers();
+    if (topStreamers.count() > 0)
+        sortTopStreamers();
 }
 
 StreamerDesc *StreamerEnviroment::findStreamer(const ViewerDesc *v)
@@ -127,14 +171,14 @@ StreamerDesc *StreamerEnviroment::findStreamer(const ViewerDesc *v)
             double value = s->test(*v);
             if (value < minValue) minValue = value;
             if (value > maxValue) maxValue = value;
-            followingResult[s->test(*v)] = s;
+            followingResult[value] = s;
         }
         if (!followingResult.empty())
             return followingResult.upper_bound(FRAND*(maxValue - minValue) - minValue)->second;
     }
     if (FRAND > v->searchingRate/50.)
     {
-        int maxCount = v->searchingRate/100.*topStreamers.count() + 10;
+        int maxCount = v->searchingRate/100.*topStreamers.count() + 5;
         StreamerDesc * foundStreamer = 0;
         double value = -1000000.0;
         for(int i = 0; i < maxCount; ++i)
@@ -220,16 +264,28 @@ void StreamerEnv::onTimer()
     {
         v = 1 - v;
         if (v%2){
-            currentTime++; currentTime%=24;}
+            currentTime++;
+            if (currentTime>=24)
+            {
+                currentDayOfWeek++;
+                currentDayOfWeek %= 7;
+            }
+            currentTime%=24;
+        }
 
-        env.update(currentTime, v%2);
+        WeekDayHour wdh;
+        wdh.dayOfWeek = currentDayOfWeek;
+        wdh.hour = currentTime;
+        env.update(wdh, v%2);
         ui->listWidget->clear();
-        for (int i = 0; i < 50; i++)
+        for (int i = 0; i < 50 && i<env.topStreamers.count(); i++)
         {
             StreamerDesc * currentStreamer = env.topStreamers[i];
             ui->listWidget->addItem(currentStreamer->name + ": " + QString::number(currentStreamer->currentViewers) + " INFO:[" +
                                     QString::number(currentStreamer->followers.count()) + " / " +
-                                    QString::number(currentStreamer->channelViews) + "]\t{" + currentStreamer->getDesc() + "}");
+                                    QString::number(currentStreamer->channelViews) + "] |" +
+                                    getStreamTimeDesc(currentStreamer, currentDayOfWeek) +
+                                    "\t{" + currentStreamer->getDesc() + "}");
             ui->label_2->setText("Users online: " + QString::number(env.watchers.count()));
         }
     }
@@ -292,4 +348,16 @@ void StreamerEnv::on_horizontalSlider_sliderMoved(int position)
         timer.setInterval(2000);
         break;
     }
+}
+
+QString StreamerEnv::getStreamTimeDesc(StreamerDesc *s, int dayOfWeek)
+{
+    if (s->streamTime.contains(dayOfWeek))
+        return QString::number(s->streamTime[dayOfWeek].timeStart) + " - " + QString::number(s->streamTime[dayOfWeek].timeEnd);
+    return "";
+}
+
+bool WeekDayHour::operator==(const WeekDayHour &other) const
+{
+    return (dayOfWeek == other.dayOfWeek) && (hour == other.hour);
 }

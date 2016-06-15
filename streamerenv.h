@@ -10,6 +10,13 @@ namespace Ui {
 class StreamerEnv;
 }
 
+struct WeekDayHour
+{
+    bool operator==(const WeekDayHour &other) const;
+    int dayOfWeek;
+    int hour;
+    int value(){return dayOfWeek*24 + hour;}
+};
 
 class StreamerEnviroment : public QObject
 {
@@ -18,14 +25,20 @@ public:
     StreamerEnviroment();
     ~StreamerEnviroment();
     void generateEnviroment(int viewerPool, int streamerPool);
-    void update(int time, bool newHour);
+    void update(WeekDayHour wdh, bool newHour);
     StreamerDesc* findStreamer(const ViewerDesc* v);
 //private:
     ViewerLibrary * library;
     QList<StreamerDesc*> topStreamers;
     QList<StreamerDesc*> streamers;
+
+
     QHash<int, QList<ViewerDesc*> > viewersWakeTime;
     QHash<int, QList<ViewerDesc*> > viewersSleepTime;
+
+    QHash<int, QList<StreamerDesc*> > streamersWakeTime;
+    QHash<int, QList<StreamerDesc*> > streamersSleepTime;
+
     QHash<ViewerDesc*, StreamerDesc*> watchers;
     QList<ViewerDesc*> viewers;
 
@@ -55,16 +68,18 @@ private slots:
     void onDecideWatch(StreamerDesc* s, ViewerDesc* v);
     void onSleep(ViewerDesc* v);
 
-
     void on_pushButton_2_clicked();
 
     void on_horizontalSlider_sliderMoved(int position);
+
+    QString getStreamTimeDesc(StreamerDesc * s, int dayOfWeek);
 
 private:
     Ui::StreamerEnv *ui;
     StreamerEnviroment env;
     QTimer timer;
     int currentTime;
+    int currentDayOfWeek;
 };
 
 #endif // STREAMERENV_H

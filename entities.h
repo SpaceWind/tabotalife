@@ -6,6 +6,12 @@
 
 class StreamerDesc;
 
+struct TimeRange
+{
+    int timeStart;
+    int timeEnd;
+};
+
 class ViewerDesc
 {
 public:
@@ -20,11 +26,6 @@ public:
     bool isMale;
     QString name;
 
-    struct TimeRange
-    {
-        int timeStart;
-        int timeEnd;
-    };
     QHash<int, TimeRange> viewTime;
     QList<StreamerDesc*> followed;
     QHash<StreamerDesc*, double> watchTime;
@@ -62,7 +63,6 @@ public:
         return currentViewers > other->currentViewers;
     }
 
-
     void follow(ViewerDesc* v);
     void unfollow(ViewerDesc * v);
     void subscribe(ViewerDesc * v);
@@ -80,6 +80,7 @@ public:
 
     QList<ViewerDesc*> followers;
     QList<ViewerDesc*> subscribers;
+    QHash<int, TimeRange> streamTime;
     int currentViewers;
     int channelViews;
 private:

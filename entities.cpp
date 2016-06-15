@@ -103,6 +103,16 @@ StreamerDesc StreamerDesc::generate(ViewerLibrary *library)
     result.agrLevel = FRAND;
     result.attLevel = FRAND;
     result.charisma = FRAND;
+    for (int i = 0; i< 7; i++)
+    {
+        double freq = FRAND;
+        if (freq > 0.8)
+            continue;
+        TimeRange tr;
+        tr.timeStart = rand()%24;
+        tr.timeEnd = (tr.timeStart + (rand()%10))%24;
+        result.streamTime[i] = tr;
+    }
     return result;
 }
 
