@@ -154,7 +154,7 @@ void StreamerEnviroment::update(WeekDayHour wdh, bool newHour)
                 {
                     watchers[v]->follow(v);
                     v->followed.append(watchers[v]);
-                 //   emit onFollowed(watchers[v], v);
+                    emit onFollowed(watchers[v], v);
                 }
             }
             if (rand()%10 == 0) //should depend on quality of the stream!
