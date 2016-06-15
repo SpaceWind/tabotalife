@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QTimer>
 #include <QVector>
+#include <QThread>
 #include "entities.h"
 
 namespace Ui {
@@ -24,8 +25,6 @@ class StreamerEnviroment : public QObject
 public:
     StreamerEnviroment();
     ~StreamerEnviroment();
-    void generateEnviroment(int viewerPool, int streamerPool);
-    void update(WeekDayHour wdh, bool newHour);
     StreamerDesc* findStreamer(const ViewerDesc* v);
 //private:
     ViewerLibrary * library;
@@ -44,11 +43,44 @@ public:
 
     void sortTopStreamers();
     void quickSortPrivate(int l, int r);
+public slots:
+
+    void generateEnviroment(int viewerPool, int streamerPool);
+    void update(WeekDayHour wdh, bool newHour);
 
 signals:
     void onFollowed(StreamerDesc*, ViewerDesc*);
     void onDecideWatch(StreamerDesc*, ViewerDesc*);
     void onSleep(ViewerDesc*);
+
+    void generated();
+    void envUpdated();
+};
+
+class StreamerEnviromentThread : public QThread
+{
+    Q_OBJECT
+public:
+    StreamerEnviromentThread(QObject *parent = 0);
+    ~StreamerEnviromentThread(){delete env;}
+
+    void run();
+    void generate(int viewerPool, int streamerPool);
+    void update(WeekDayHour wdh, bool newHour);
+
+    StreamerEnviroment * env;
+signals:
+    void envUpdated();
+    void envGenerated();
+
+    void onFollowed(StreamerDesc*, ViewerDesc*);
+    void onDecideWatch(StreamerDesc*, ViewerDesc*);
+    void onSleep(ViewerDesc*);
+
+    void needUpdate(WeekDayHour wdh, bool newHour);
+    void needGenerate(int viewerPool, int streamerPool);
+
+private:
 };
 
 
@@ -72,11 +104,15 @@ private slots:
 
     void on_horizontalSlider_sliderMoved(int position);
 
+    void onGenerated();
+    void onUpdated();
+    void onEnvCreated();
+
     QString getStreamTimeDesc(StreamerDesc * s, int dayOfWeek);
 
 private:
     Ui::StreamerEnv *ui;
-    StreamerEnviroment env;
+    StreamerEnviromentThread * env;
     QTimer timer;
     int currentTime;
     int currentDayOfWeek;
