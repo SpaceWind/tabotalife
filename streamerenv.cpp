@@ -106,8 +106,11 @@ void StreamerEnviroment::update(WeekDayHour wdh, bool newHour)
         for (int i = 0; i < currentStreamersWakeTime.count(); ++i)
         {
             StreamerDesc * s = currentStreamersWakeTime[i];
-            streamers.append(s);
-            topStreamers.append(s);
+            if (!streamers.contains(s))
+            {
+                streamers.append(s);
+                topStreamers.append(s);
+            }
         }
         for (int i = 0; i < currentStreamersSleepTime.count(); ++i)
         {
