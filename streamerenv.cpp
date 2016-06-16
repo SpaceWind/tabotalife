@@ -387,16 +387,30 @@ void StreamerEnv::onGenerated()
 
 void StreamerEnv::onUpdated()
 {
-    ui->listWidget->clear();
+    int count = std::min(50, env->env->topStreamers.count());
+    bool redraw = false;
+    if (ui->listWidget->count() != count)
+        redraw = true;
+    if (redraw)
+        ui->listWidget->clear();
     for (int i = 0; i < 50 && i<env->env->topStreamers.count(); i++)
     {
         StreamerDesc * currentStreamer = env->env->topStreamers[i];
-        StreamerView * item = new StreamerView();
-        item->load(currentStreamer);
-        QListWidgetItem * listItem = new QListWidgetItem();
-        listItem->setSizeHint(QSize(0, 32));
-        ui->listWidget->addItem(listItem);
-        ui->listWidget->setItemWidget(listItem, item);
+
+        if (redraw)
+        {
+            StreamerView * item = new StreamerView();
+            item->load(currentStreamer);
+            QListWidgetItem * listItem = new QListWidgetItem();
+            listItem->setSizeHint(QSize(0, 32));
+            ui->listWidget->addItem(listItem);
+            ui->listWidget->setItemWidget(listItem, item);
+        }
+        else
+        {
+            StreamerView * item = dynamic_cast<StreamerView*>(ui->listWidget->itemWidget(ui->listWidget->item(i)));
+            item->load(currentStreamer);
+        }
         ui->label_2->setText("Users online: " + QString::number(env->env->watchers.count()));
     }
 }
