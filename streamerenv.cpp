@@ -5,6 +5,9 @@
 #include <QtConcurrentRun>
 #include <QFuture>
 
+#define POOL_S 1000
+#define POOL_V 400000
+
 StreamerEnv::StreamerEnv(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::StreamerEnv)
@@ -174,7 +177,7 @@ void StreamerEnviroment::update(WeekDayHour wdh, bool newHour)
                 {
                     watchers[v]->follow(v);
                     v->followed.append(watchers[v]);
-                    emit onFollowed(watchers[v], v);
+                  //  emit onFollowed(watchers[v], v);
                 }
             }
             if (rand()%10 == 0) //should depend on quality of the stream!
@@ -417,7 +420,7 @@ void StreamerEnv::onUpdated()
 
 void StreamerEnv::onEnvCreated()
 {
-    env->generate(100000,500);
+    env->generate(POOL_V,POOL_S);
 }
 
 QString StreamerEnv::getStreamTimeDesc(StreamerDesc *s, int dayOfWeek)
