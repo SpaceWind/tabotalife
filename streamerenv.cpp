@@ -1,5 +1,6 @@
 #include "streamerenv.h"
 #include "ui_streamerenv.h"
+#include "streamerview.h"
 #include <QDebug>
 #include <QtConcurrentRun>
 #include <QFuture>
@@ -43,6 +44,7 @@ StreamerEnviroment::~StreamerEnviroment()
 
 void StreamerEnviroment::generateEnviroment(int viewerPool, int streamerPool)
 {
+    qDebug() << "StreamerEnviroment::generateEnviroment";
     for (int i = 0; i< viewerPool; ++i)
     {
         ViewerDesc * v = ViewerDesc::generateDynamic(library);
@@ -115,8 +117,23 @@ void StreamerEnviroment::update(WeekDayHour wdh, bool newHour)
         for (int i = 0; i < currentStreamersSleepTime.count(); ++i)
         {
             StreamerDesc * s = currentStreamersSleepTime[i];
-            streamers.removeOne(s);
-            topStreamers.removeOne(s);
+            streamers.removeAll(s);
+            topStreamers.removeAll(s);
+            s->currentViewers = 0;
+            for (int i = 0; i < s->viewers.count(); i++)
+            {
+                ViewerDesc *v = s->viewers[i];
+                watchers.remove(v);
+
+                StreamerDesc * ns = findStreamer(v);
+                ns->currentViewers++;
+                ns->channelViews++;
+                watchers[v] = ns;
+                if (!ns->viewers.contains(v))
+                    ns->viewers.append(v);
+            }
+            s->viewers.clear();
+
         }
 
         for (int i = 0; i<currentViewersWakeTime.count(); ++i)
@@ -128,6 +145,8 @@ void StreamerEnviroment::update(WeekDayHour wdh, bool newHour)
                 watchers.remove(v);
             watchers[v] = s;
             s->channelViews++;
+            if (!s->viewers.contains(v))
+                s->viewers.append(v);
           //  emit onDecideWatch(s,v);
         }
         for (int i = 0; i<currentViewersSleepTime.count(); ++i)
@@ -136,6 +155,7 @@ void StreamerEnviroment::update(WeekDayHour wdh, bool newHour)
              if (watchers.contains(v))
              {
                  watchers[v]->currentViewers--;
+                 watchers[v]->viewers.removeAll(v);
                  watchers.remove(v);
              //    emit onSleep(v);
              }
@@ -160,11 +180,14 @@ void StreamerEnviroment::update(WeekDayHour wdh, bool newHour)
             if (rand()%10 == 0) //should depend on quality of the stream!
             {
                 watchers[v]->currentViewers--;
+                watchers[v]->viewers.removeAll(v);
                 watchers.remove(v);
                 StreamerDesc * s = findStreamer(v);
                 s->currentViewers++;
                 s->channelViews++;
                 watchers[v] = s;
+                //if (!s->viewers.contains(v))
+                    s->viewers.append(v);
             }
         }
     }
@@ -356,6 +379,7 @@ void StreamerEnv::on_horizontalSlider_sliderMoved(int position)
 
 void StreamerEnv::onGenerated()
 {
+    qDebug() << "onGenerated";
     ui->pushButton->setEnabled(true);
     ui->pushButton_2->setEnabled(true);
     ui->horizontalSlider->setEnabled(true);
@@ -367,18 +391,19 @@ void StreamerEnv::onUpdated()
     for (int i = 0; i < 50 && i<env->env->topStreamers.count(); i++)
     {
         StreamerDesc * currentStreamer = env->env->topStreamers[i];
-        ui->listWidget->addItem(currentStreamer->name + ": " + QString::number(currentStreamer->currentViewers) + " INFO:[" +
-                                QString::number(currentStreamer->followers.count()) + " / " +
-                                QString::number(currentStreamer->channelViews) + "] |" +
-                                getStreamTimeDesc(currentStreamer, currentDayOfWeek) +
-                                "\t{" + currentStreamer->getDesc() + "}");
+        StreamerView * item = new StreamerView();
+        item->load(currentStreamer);
+        QListWidgetItem * listItem = new QListWidgetItem();
+        listItem->setSizeHint(QSize(0, 32));
+        ui->listWidget->addItem(listItem);
+        ui->listWidget->setItemWidget(listItem, item);
         ui->label_2->setText("Users online: " + QString::number(env->env->watchers.count()));
     }
 }
 
 void StreamerEnv::onEnvCreated()
 {
-    env->generate(250000,1000);
+    env->generate(100000,500);
 }
 
 QString StreamerEnv::getStreamTimeDesc(StreamerDesc *s, int dayOfWeek)

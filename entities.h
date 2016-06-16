@@ -80,6 +80,7 @@ public:
 
     QList<ViewerDesc*> followers;
     QList<ViewerDesc*> subscribers;
+    QList<ViewerDesc*> viewers;
     QHash<int, TimeRange> streamTime;
     int currentViewers;
     int channelViews;

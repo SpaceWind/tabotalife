@@ -19,14 +19,20 @@ SOURCES += main.cpp\
     library.cpp \
     entities.cpp \
     singleiterationemulate.cpp \
-    streamerenv.cpp
+    streamerenv.cpp \
+    streamerview.cpp
 
 HEADERS  += mainwindow.h \
     library.h \
     entities.h \
     singleiterationemulate.h \
-    streamerenv.h
+    streamerenv.h \
+    streamerview.h
 
 FORMS    += mainwindow.ui \
     singleiterationemulate.ui \
-    streamerenv.ui
+    streamerenv.ui \
+    streamerview.ui
+
+RESOURCES += \
+    res.qrc

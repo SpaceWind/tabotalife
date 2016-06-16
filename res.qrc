@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>charisma_q.png</file>
+        <file>followers.png</file>
+        <file>hate_q.png</file>
+        <file>love_q.ico</file>
+        <file>online.png</file>
+        <file>pic_q.png</file>
+        <file>skill_q.png</file>
+        <file>sleep.png</file>
+        <file>talk_q.png</file>
+        <file>views.png</file>
+        <file>wakeup.png</file>
+        <file>webcam_q.png</file>
+    </qresource>
+</RCC>
