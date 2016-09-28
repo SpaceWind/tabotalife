@@ -14,6 +14,19 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" rowspan="7">
+    <widget class="QListWidget" name="listWidget"/>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="QPlainTextEdit" name="plainTextEdit">
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="2" rowspan="3">
     <widget class="QPushButton" name="pushButton">
      <property name="enabled">
@@ -38,16 +51,19 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0" rowspan="6">
-    <widget class="QListWidget" name="listWidget"/>
-   </item>
    <item row="5" column="1" colspan="2">
-    <widget class="QPlainTextEdit" name="plainTextEdit">
-     <property name="minimumSize">
-      <size>
-       <width>300</width>
-       <height>0</height>
-      </size>
+    <widget class="QSlider" name="horizontalSlider">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="maximum">
+      <number>8</number>
+     </property>
+     <property name="value">
+      <number>1</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>
@@ -68,19 +84,10 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="QSlider" name="horizontalSlider">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="maximum">
-      <number>8</number>
-     </property>
-     <property name="value">
-      <number>1</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="4" column="2">
+    <widget class="QPushButton" name="pushButton_3">
+     <property name="text">
+      <string>Save</string>
      </property>
     </widget>
    </item>

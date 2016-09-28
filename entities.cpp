@@ -74,6 +74,25 @@ ViewerDesc *ViewerDesc::generateDynamic(ViewerLibrary *library)
     return newViewer;
 }
 
+void ViewerDesc::serialize(QDataStream *s)
+{
+    (*s) << age << alphaLevel << casuality << isMale << name;
+    (*s) << viewTime.count();
+    foreach (const int &k,viewTime.keys())
+        (*s) << k << viewTime[k].timeStart << viewTime[k].timeEnd;
+    (*s) << followed.count();
+    foreach (const StreamerDesc* f,followed)
+        (*s) << f->name;
+    (*s) << watchTime.count();
+    for (int i = 0; i< watchTime.keys().count(); i++)
+    {
+        StreamerDesc * w = watchTime.keys().at(i);
+        (*s) << w->name << watchTime[w];
+    }
+    (*s) << aggressionInterest << qualityImportance << searchingRate << paymentAbilityMale << paymentAbilityFemale
+         << webcamInterest << interactiveInterest << skillInterest;
+}
+
 
 StreamerDesc::StreamerDesc()
 {
@@ -162,6 +181,19 @@ QString StreamerDesc::getDesc()
     result += "\tATT: " + QString::number(attLevel, 'f',3) + " ";
     result += "\tCHA: " + QString::number(charisma, 'f',3) + " ";
     return result;
+}
+
+void StreamerDesc::serialize(QDataStream *s)
+{
+    (*s) << name << isMale << pictureQuality << webCamQuality << skillLevel
+         << interactiveness << agrLevel << attLevel << charisma;
+    (*s) << streamTime.count();
+    for (int i = 0; i< streamTime.count(); i++)
+    {
+        int k = streamTime.keys().at(i);
+        (*s) << k << streamTime.value(k).timeStart << streamTime.value(k).timeEnd;
+    }
+    (*s) << channelViews;
 }
 
 void StreamerDesc::follow(ViewerDesc *v)

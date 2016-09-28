@@ -4,9 +4,10 @@
 #include <QDebug>
 #include <QtConcurrentRun>
 #include <QFuture>
+#include <QMessageBox>
 
-#define POOL_S 1000
-#define POOL_V 400000
+#define POOL_S 500
+#define POOL_V 75000
 
 StreamerEnv::StreamerEnv(QWidget *parent) :
     QWidget(parent),
@@ -465,4 +466,29 @@ void StreamerEnviromentThread::generate(int viewerPool, int streamerPool)
 void StreamerEnviromentThread::update(WeekDayHour wdh, bool newHour)
 {
     emit needUpdate(wdh, newHour);
+}
+
+void StreamerEnv::on_pushButton_3_clicked()
+{
+    timer.stop();
+    QFile f("/home/nother/save-unc.env");
+    f.open(QFile::WriteOnly);
+    QByteArray data;
+    QDataStream s(&data, QFile::WriteOnly);
+    s << int(0xCC33CC55)
+      << QString("This is Streamer Simulator enviroment file. Please, dont edit it!")
+      << env->env->viewers.count() <<  env->env->streamers.count();
+    QMessageBox::information(this, "progress", "Saving viewers...");
+    for (int i = 0; i< env->env->viewers.count(); i++)
+        env->env->viewers[i]->serialize(&s);
+    QMessageBox::information(this, "progress", "Saving streamers");
+    for (int i = 0; i< env->env->streamers.count(); i++)
+        env->env->streamers[i]->serialize(&s);
+
+    //data = qCompress(data, 9);
+    f.write(data);
+    f.flush();
+    f.close();
+    timer.start();
+    QMessageBox::information(this, "Saving done","Success!!");
 }

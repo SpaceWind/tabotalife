@@ -1,6 +1,7 @@
 #ifndef VIEWERDESC_H
 #define VIEWERDESC_H
 
+#include <QDataStream>
 #include "library.h"
 #define FRAND (double(rand()%RAND_MAX)/double(RAND_MAX))
 
@@ -19,6 +20,7 @@ public:
 
     static ViewerDesc generate(ViewerLibrary * library);
     static ViewerDesc *generateDynamic(ViewerLibrary * library);
+    void serialize(QDataStream * s);
 
     double age;
     double alphaLevel;
@@ -50,6 +52,7 @@ public:
     double test(ViewerDesc v) const;
     static QString getRandomString();
     QString getDesc();
+    void serialize(QDataStream * s);
 
     bool operator<(const StreamerDesc* other) const
     {

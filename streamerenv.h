@@ -110,6 +110,8 @@ private slots:
 
     QString getStreamTimeDesc(StreamerDesc * s, int dayOfWeek);
 
+    void on_pushButton_3_clicked();
+
 private:
     Ui::StreamerEnv *ui;
     StreamerEnviromentThread * env;
